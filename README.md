@@ -3,3 +3,5 @@
 - npm i vite
 - npm install cross-env --save-dev
 - npm run dev
+
+### Then run this in your browser: http://localhost:5000/
