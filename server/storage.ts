@@ -2,6 +2,9 @@ import { users, type User, type InsertUser, repositories, type Repository, type 
 import session from "express-session";
 import createMemoryStore from "memorystore";
 
+// Re-export types for other modules to use
+export type { User, InsertUser, Repository, InsertRepository, Issue, InsertIssue, Pipeline, InsertPipeline };
+
 const MemoryStore = createMemoryStore(session);
 
 export interface IStorage {
@@ -30,6 +33,13 @@ export interface IStorage {
   getPipelinesByRepositoryId(repositoryId: number): Promise<Pipeline[]>;
   createPipeline(pipeline: InsertPipeline): Promise<Pipeline>;
   
+  // File methods
+  saveFile(repositoryId: number, path: string, content: string): Promise<{ id: number; path: string }>;
+  getFile(id: number): Promise<{ id: number; repositoryId: number; path: string; content: string } | undefined>;
+  getFilesByRepository(repositoryId: number): Promise<{ id: number; path: string }[]>;
+  updateFile(id: number, content: string): Promise<boolean>;
+  deleteFile(id: number): Promise<boolean>;
+  
   // Session store
   sessionStore: session.SessionStore;
 }
@@ -39,6 +49,7 @@ export class MemStorage implements IStorage {
   private repositories: Map<number, Repository>;
   private issues: Map<number, Issue>;
   private pipelines: Map<number, Pipeline>;
+  private files: Map<number, { id: number; repositoryId: number; path: string; content: string }>;
   
   public sessionStore: session.SessionStore;
   
@@ -46,17 +57,20 @@ export class MemStorage implements IStorage {
   private repositoryIdCounter: number;
   private issueIdCounter: number;
   private pipelineIdCounter: number;
+  private fileIdCounter: number;
 
   constructor() {
     this.users = new Map();
     this.repositories = new Map();
     this.issues = new Map();
     this.pipelines = new Map();
+    this.files = new Map();
     
     this.userIdCounter = 1;
     this.repositoryIdCounter = 1;
     this.issueIdCounter = 1;
     this.pipelineIdCounter = 1;
+    this.fileIdCounter = 1;
     
     this.sessionStore = new MemoryStore({
       checkPeriod: 86400000, // prune expired entries every 24h
@@ -191,6 +205,40 @@ export class MemStorage implements IStorage {
     };
     this.pipelines.set(id, newPipeline);
     return newPipeline;
+  }
+
+  // File methods
+  async saveFile(repositoryId: number, path: string, content: string): Promise<{ id: number; path: string }> {
+    const id = this.fileIdCounter++;
+    const fileData = { id, repositoryId, path, content };
+    this.files.set(id, fileData);
+    return { id, path };
+  }
+
+  async getFile(id: number): Promise<{ id: number; repositoryId: number; path: string; content: string } | undefined> {
+    return this.files.get(id);
+  }
+
+  async getFilesByRepository(repositoryId: number): Promise<{ id: number; path: string }[]> {
+    return Array.from(this.files.values())
+      .filter(file => file.repositoryId === repositoryId)
+      .map(file => ({ id: file.id, path: file.path }));
+  }
+
+  async updateFile(id: number, content: string): Promise<boolean> {
+    const file = this.files.get(id);
+    if (!file) return false;
+    
+    this.files.set(id, {
+      ...file,
+      content
+    });
+    
+    return true;
+  }
+
+  async deleteFile(id: number): Promise<boolean> {
+    return this.files.delete(id);
   }
 }
 
