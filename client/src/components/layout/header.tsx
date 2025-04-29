@@ -1,4 +1,4 @@
-import { useNavigate, useLocation } from "wouter";
+import { useLocation } from "wouter";
 import { Bell, ArrowLeft } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useAuth } from "@/hooks/use-auth";
@@ -21,8 +21,7 @@ interface HeaderProps {
 }
 
 export function Header({ title, showBackButton = false, backButtonUrl = "/", actions }: HeaderProps) {
-  const [, navigate] = useNavigate();
-  const [location] = useLocation();
+  const [location, navigate] = useLocation();
   const { user, logoutMutation } = useAuth();
   
   const handleBack = () => {
