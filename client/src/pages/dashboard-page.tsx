@@ -9,10 +9,11 @@ import { IssueCard } from "@/components/issues/issue-card";
 import { PipelineCard } from "@/components/pipelines/pipeline-card";
 import { DataStatusCircle } from "@/components/data-status/data-status-circle";
 import { Button } from "@/components/ui/button";
+import { Badge } from "@/components/ui/badge";
 import { useAuth } from "@/hooks/use-auth";
 import { Repository, branches, commits, files, issues, pipelines, pullRequests, repositories } from "@/lib/database";
 import { p2pClient } from "@/lib/p2p-mock";
-import { Shield, Link2Off, UserCog, Lock, Database, ChevronRight } from "lucide-react";
+import { Shield, Link2Off, UserCog, Lock, Database, ChevronRight, Folder, FileText } from "lucide-react";
 import { format } from "date-fns";
 
 // Types
@@ -156,17 +157,17 @@ export default function DashboardPage() {
       
       // If no pipelines, create demo data
       if (allPipelines.length === 0 && userRepositories.length > 0) {
-        const mockPipelines = [
+        const mockPipelines: Omit<Pipeline, 'id'>[] = [
           {
             repositoryId: userRepositories[0].id,
             buildNumber: 45,
-            status: 'success',
+            status: 'success' as 'success', // Type assertion to match Pipeline type
             createdAt: new Date(Date.now() - 2 * 60 * 60 * 1000) // 2 hours ago
           },
           {
             repositoryId: userRepositories[0].id,
             buildNumber: 44,
-            status: 'failed',
+            status: 'failed' as 'failed', // Type assertion to match Pipeline type 
             createdAt: new Date(Date.now() - 3 * 60 * 60 * 1000) // 3 hours ago
           }
         ];
