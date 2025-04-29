@@ -10,6 +10,9 @@ import AuthPage from "@/pages/auth-page";
 import DashboardPage from "@/pages/dashboard-page";
 import RepositoryPage from "@/pages/repository-page";
 import NotificationsPage from "@/pages/notifications-page";
+import NewRepositoryPage from "@/pages/new-repository-page";
+import PipelinesPage from "@/pages/pipelines-page";
+import IssuesPage from "@/pages/issues-page";
 import { ProtectedRoute } from "./lib/protected-route";
 
 function Router() {
@@ -19,6 +22,9 @@ function Router() {
       <ProtectedRoute path="/" component={DashboardPage} />
       <ProtectedRoute path="/repository/:id" component={RepositoryPage} />
       <ProtectedRoute path="/notifications" component={NotificationsPage} />
+      <ProtectedRoute path="/new-repository" component={NewRepositoryPage} />
+      <ProtectedRoute path="/pipelines" component={PipelinesPage} />
+      <ProtectedRoute path="/issues" component={IssuesPage} />
       <Route component={NotFound} />
     </Switch>
   );
